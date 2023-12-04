@@ -1,7 +1,12 @@
 package lk.ijse.dep11.edupanel;
 
 
+import org.springframework.web.filter.FormContentFilter;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
+
+import javax.servlet.Filter;
+import javax.servlet.MultipartConfigElement;
+import javax.servlet.ServletRegistration;
 
 public class WebAppInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {
     @Override
@@ -17,5 +22,16 @@ public class WebAppInitializer extends AbstractAnnotationConfigDispatcherServlet
     @Override
     protected String[] getServletMappings() {
         return new String[]{"/"};
+    }
+
+    @Override
+    protected void customizeRegistration(ServletRegistration.Dynamic registration) {
+        registration.setMultipartConfig(new MultipartConfigElement("/tmp"));
+    }
+
+    @Override
+    protected Filter[] getServletFilters() {
+        System.out.println("Using new Filters");
+        return new Filter[]{new FormContentFilter()};
     }
 }

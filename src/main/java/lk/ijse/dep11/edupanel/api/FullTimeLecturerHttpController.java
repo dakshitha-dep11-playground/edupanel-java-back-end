@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/lecturers/full-time")
 public class FullTimeLecturerHttpController {
 
+
+
     @PatchMapping("/ranks")
     public void arrangeFullTimeLecturerOrder(){
         System.out.println("arrange full time");

@@ -1,15 +1,23 @@
 package lk.ijse.dep11.edupanel.api;
 
+import lk.ijse.dep11.edupanel.to.request.LecturerRequestTO;
+import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 @RestController
 @CrossOrigin
 @RequestMapping("/api/v1/lecturers")
 public class LecturerHttpController {
 
-    @PostMapping
-    public void createNewLecturer(){
-        System.out.println("create new");
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping(consumes = "multipart/form-data", produces = "application/json")
+    public void createNewLecturer( @ModelAttribute @Valid LecturerRequestTO lecturer){
+        System.out.println(lecturer);
+        System.out.println("Save this lecturer");
     }
 
     @PatchMapping("/{lecturer-id}")
@@ -26,4 +34,7 @@ public class LecturerHttpController {
     public void getAllLecturers(){
         System.out.println("get all lec");
     }
+
+
+
 }
