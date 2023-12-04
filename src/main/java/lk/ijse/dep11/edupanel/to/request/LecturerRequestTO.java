@@ -27,7 +27,7 @@ public class LecturerRequestTO {
     @Pattern(regexp = "^(full-time|part-time)$",flags = Pattern.Flag.CASE_INSENSITIVE, message = "Invalid type")
     @NotBlank(message = "Type cannot be blank")
     private String type;
-    @LectureImage(maximumFileSize = 500*1024)
+    @LectureImage(maximumFileSize = 3000*1024)
     private MultipartFile picture;
 //    @Pattern(regexp = "^http[s]?://linkedin.com.+$",message = "Invalid linkedin")
     @URL

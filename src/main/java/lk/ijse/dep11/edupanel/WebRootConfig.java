@@ -32,21 +32,5 @@ public class WebRootConfig {
     }
 
 
-    @Bean
-    public Bucket defaultBucket() throws IOException {
-//        FileInputStream serviceAccount =
-//                new FileInputStream("path/to/serviceAccountKey.json");
 
-        InputStream serviceAccount = getClass().getResourceAsStream("edu-panel-e7a92-firebase-adminsdk-t4rpq-3c01dfcfe3.json");
-
-        FirebaseOptions options = new FirebaseOptions.Builder()
-                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                .setStorageBucket("edu-panel-e7a92.appspot.com")
-                .build();
-
-        FirebaseApp.initializeApp(options);
-
-        Bucket bucket = StorageClient.getInstance().bucket();
-        return bucket;
-    }
 }

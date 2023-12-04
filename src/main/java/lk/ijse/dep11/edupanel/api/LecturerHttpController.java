@@ -1,7 +1,10 @@
 package lk.ijse.dep11.edupanel.api;
 
-import com.google.api.services.storage.model.Bucket;
+import com.google.cloud.storage.Blob;
+import com.google.cloud.storage.Bucket;
+import com.google.cloud.storage.Storage;
 import lk.ijse.dep11.edupanel.to.request.LecturerRequestTO;
+import lk.ijse.dep11.edupanel.to.response.LecturerResTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
@@ -11,7 +14,10 @@ import org.springframework.web.bind.annotation.*;
 import javax.sql.DataSource;
 import javax.validation.Valid;
 import javax.xml.crypto.Data;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.sql.*;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @CrossOrigin
@@ -26,7 +32,7 @@ public class LecturerHttpController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(consumes = "multipart/form-data", produces = "application/json")
-    public void createNewLecturer( @ModelAttribute @Valid LecturerRequestTO lecturer){
+    public LecturerResTO createNewLecturer(@ModelAttribute @Valid LecturerRequestTO lecturer){
         try (Connection connection = pool.getConnection()){
 
             /* Transaction mode */
@@ -47,7 +53,7 @@ public class LecturerHttpController {
                 String picture = lecturerID + "-" +lecturer.getName();
 
                 /* Save picture data in database */
-                if(lecturer.getPicture() != null || !lecturer.getPicture().isEmpty()) {
+                if(lecturer.getPicture() != null && !lecturer.getPicture().isEmpty()) {
                     System.out.println("Picture have");
                     PreparedStatement stmPicture = connection.prepareStatement("UPDATE lecturer SET picture=? WHERE id=?");
                     stmPicture.setString(1,picture);
@@ -75,9 +81,23 @@ public class LecturerHttpController {
                     stmFullOrPartTime.setInt(2,newRank);
                     stmFullOrPartTime.executeUpdate();
 
+                /* Save Picture in firebase storage */
+                String pictureURL = null;
+                if(lecturer.getPicture() != null && !lecturer.getPicture().isEmpty()){
+                    Blob blob = bucket.create(picture, lecturer.getPicture().getInputStream(), lecturer.getPicture().getContentType());
+                    pictureURL = blob.signUrl(1, TimeUnit.DAYS, Storage.SignUrlOption.withV4Signature()).toString();
 
+                }
 
                 connection.commit();
+
+                return new LecturerResTO(lecturerID,
+                                lecturer.getName(),
+                                lecturer.getDesignation(),
+                                lecturer.getQualifications(),
+                                lecturer.getType(),
+                                pictureURL,
+                                lecturer.getLinkedIn() );
             } catch (SQLException e) {
                 connection.rollback();
                 throw new RuntimeException(e);
@@ -90,8 +110,8 @@ public class LecturerHttpController {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        System.out.println(lecturer);
-        System.out.println("Save this lecturer");
+//        System.out.println(lecturer);
+//        System.out.println("Save this lecturer");
     }
 
     @PatchMapping("/{lecturer-id}")
